@@ -163,7 +163,7 @@ tapply(X=daily_prec_dev$Precipitation..ml.,
 
 
 
-# La Palma
+# La Palma ####
 
 # Precipitation ####
 #setwd("D:/Global Change Ecology/Summer_Winter Schools/La Palma/Results")
@@ -217,7 +217,7 @@ title("Mean with confidence intervals for all 3 sites and 2 days")
 # Der Fehler ist so riesig, dass er sämtliche potentielle Ergebnisse nichtig macht
 # die hier gezeigten Konfidenzintervalle sind wohl sogar noch zu klein, da normalverteilung nicht gegeben ist
 
-# 21.03.16 is not included so far; just ignore it?
+# 21.03.16 is not included so far; just ignore it, i guess?
 
 # Calculate "fog precipitation" der Devices
 a1<-(prec[109:117,4]-mean_a1) # ist dies die beste Methode? (die Kontrolldevices sind arg unterschiedlich)
@@ -230,6 +230,7 @@ b3<-(prec[154:162,4]-mean_b3)
 na1<-(net[37:39,3]-mean_a1)
 na2<-(net[40:42,3]-mean_a2)
 na3<-(net[43:45,3]-mean_a3)
+na3b<-na3; na3b[2]<-394
 nb1<-(net[46:48,3]-mean_b1)
 nb2<-(net[49:51,3]-mean_b2)
 nb3<-(net[52:54,3]-mean_b3)
@@ -266,17 +267,54 @@ title("Day 2 Fog precipiation mean with standard deviation")
 ## sign. von 0? siehe Test 2
 
 # Plot der means der fog precipitation (nets) mit sd
-plot(na1,col="blue",ylim=c(-400,600),type="l")
+m_d<-c(40,60,85) # Mesh density
+# Einzelplots: 
+par(mfrow=c(3,2))
+plot(m_d,na1,col="blue",type="l")
+plot(m_d,nb1,col="cyan",type="l")
+plot(m_d,na2,col="red",type="l")
+plot(m_d,nb2,col="VioletRed3",type="l")
+plot(m_d,na3b,col="green",type="l") # measurement error point included
+plot(m_d,nb3,col="chartreuse",type="l")
+# Jedes Mal komplett verschieden, kann es sein, dass hier doch manches tatsächlich verwechselt/umgedreht wurde? (aber wenig wahrscheinlich)
+# Gesamtplot
+par(mfrow=c(1,1))
+plot(m_d,na1,col="blue",ylim=c(-400,600),type="l")
 title("Plot der means der fog precipitation (nets) mit sd")
 #abline(na1(1),na1(3))
-lines(na2,col="red")
-points((na3),col="green")
-lines(nb1,col="cyan")
-lines(nb2,col="VioletRed3")
-lines(nb3,col="chartreuse")
+lines(m_d,na2,col="red")
+points(m_d,(na3),col="green")
+lines(m_d,nb1,col="cyan")
+lines(m_d,nb2,col="VioletRed3")
+lines(m_d,nb3,col="chartreuse")
 #' This data is worthless. This is quite problematic. 
 #' Even to calculate a slope and use it for correlation purposes is highly debatable.
 #' Also it is just way too less data.
+#' But we could argue that 2 days are just too little too get meaningful results
+#' in ecological field studies. Only if data would have really 
+#' little variance and would be highly precise (not often the case in nature), two
+#' days would be sufficient to draw a conclusion.
+
+# Correlation between fog precipitation and mesh density
+lm1<-lm(na1~m_d);lm2<-lm(na2~m_d);lm3<-lm(na3b~m_d);lm4<-lm(nb1~m_d);lm5<-lm(nb2~m_d);lm6<-lm(nb3~m_d)
+plot(c(lm1$coefficients[2],lm2$coefficients[2],lm3$coefficients[2],lm4$coefficients[2],lm5$coefficients[2],lm6$coefficients[2]))
+title("Slopes of the fog prec~density correlation")
+summary(lm1);summary(lm2);summary(lm3);summary(lm4);summary(lm5);summary(lm6)
+# The slopes are completely different. No conclusion can be made at all about how the amount of influence of density on fog precipitation.
+# We can only presume that in most cases fog precipitation increases with density (but no significant p-value), but we cannot quantify it at all.
+# (, although we could mention the R-squared).
+
+# only for 40 to 60
+lm1<-lm(na1[1:2]~m_d[1:2]);lm2<-lm(na2[1:2]~m_d[1:2]);lm3<-lm(na3b[1:2]~m_d[1:2]);lm4<-lm(nb1[1:2]~m_d[1:2]);lm5<-lm(nb2[1:2]~m_d[1:2]);lm6<-lm(nb3[1:2]~m_d[1:2])
+plot(c(lm1$coefficients[2],lm2$coefficients[2],lm3$coefficients[2],lm4$coefficients[2],lm5$coefficients[2],lm6$coefficients[2]))
+title("Slopes of the fog prec~density correlation only for meshes 40 to 60")
+summary(lm1);summary(lm2);summary(lm3);summary(lm4);summary(lm5);summary(lm6)
+# only for 60 to 85
+lm1<-lm(na1[2:3]~m_d[2:3]);lm2<-lm(na2[2:3]~m_d[2:3]);lm3<-lm(na3b[2:3]~m_d[2:3]);lm4<-lm(nb1[2:3]~m_d[2:3]);lm5<-lm(nb2[2:3]~m_d[2:3]);lm6<-lm(nb3[2:3]~m_d[2:3])
+plot(c(lm1$coefficients[2],lm2$coefficients[2],lm3$coefficients[2],lm4$coefficients[2],lm5$coefficients[2],lm6$coefficients[2]))
+title("Slopes of the fog prec~density correlation only for meshes 60 to 85")
+summary(lm1);summary(lm2);summary(lm3);summary(lm4);summary(lm5);summary(lm6)
+# just an attempt if at least for a section something can be said, but this can be discarded, nothing meaningful here.
 
 # Prerequisite Test für Normalverteilung
 shapiro.test(a1);shapiro.test(a2);shapiro.test(a3) # a2 ist wohl nicht normalverteilt
@@ -288,6 +326,17 @@ shapiro.test(control[47:48,3]); # not applicable
 shapiro.test(control[49:51,3]); # fine (but not really if you look at plot)
 shapiro.test(control[52:54,3]) # fine
 # Entscheidung für Wilcoxon-Test
+
+# Prerequisite Homoskedastizität
+qqnorm(a1);qqline(a1);qqnorm(a2);qqline(a2);qqnorm(a3);qqline(a3)
+qqnorm(b1);qqline(b1);qqnorm(b2);qqline(b2);qqnorm(b3);qqline(b3)
+# This looks actually mostly good, variances are mostly homoscedastically distributed. 
+# ein paar abweichungen für die randwerte, aber das ist kein Beinbruch. (Nur beim dritten plot
+# gibt es nichtmal an den Rändern Abweichungen, was für die homogenen Varianzen dieser Daten spricht;
+# Dies lässt sich als Argument anbringen, ob Regen oder Fog prec. entscheidend ist, siehe unten).
+# Dennoch können wir keinen t-Test verwenden, da Normalverteilung nicht gegeben ist.
+
+# Test für Netze können wir uns sparen, wenn schon für den Rest die Voraussetzungen fehlen.
 
 # Test 1: Unterscheiden sich Control und Forest plots sign. voneinander? (We could only use the data if "No")
 wilcox.test(a1,control[37:39,3]) # Yes
